@@ -144,6 +144,7 @@ async function confirm() {
         order.confirmedOrderId = orderId
         order.customerName = customerName.value
         order.customerPhone = customerPhone.value
+        order.paymentMethod = selectedPaymentMethod.value
 
         // Open WhatsApp — use pre-opened window to avoid popup blocker
         const message = buildWhatsappMessage(orderId)
