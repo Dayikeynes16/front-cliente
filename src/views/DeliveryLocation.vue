@@ -41,13 +41,11 @@ watch(activeTypes, (types) => {
 onMounted(() => {
     // Pre-fill from cookie
     const cookie = getCustomerCookie()
-    if (cookie && (cookie.address_street || cookie.latitude)) {
+    if (cookie) {
         addressStreet.value = cookie.address_street ?? ''
         addressNumber.value = cookie.address_number ?? ''
         addressColony.value = cookie.address_colony ?? ''
         addressReferences.value = cookie.address_references ?? ''
-        latitude.value = cookie.latitude ?? null
-        longitude.value = cookie.longitude ?? null
     }
 })
 
@@ -67,9 +65,11 @@ const deliveryError = ref(null)
 // GPS
 const locating = ref(false)
 const gpsError = ref(null)
+const gpsResolved = ref(false)
 async function requestGps() {
     if (!navigator.geolocation) {
         gpsError.value = 'Tu navegador no soporta geolocalización.'
+        gpsResolved.value = true
         return
     }
     locating.value = true
@@ -79,10 +79,12 @@ async function requestGps() {
             latitude.value = pos.coords.latitude
             longitude.value = pos.coords.longitude
             locating.value = false
+            gpsResolved.value = true
             gpsError.value = null
         },
         (err) => {
             locating.value = false
+            gpsResolved.value = true
             if (err.code === 1) {
                 gpsError.value = 'Permiso de ubicación denegado. Actívalo en los ajustes de tu navegador o arrastra el pin en el mapa.'
             } else if (err.code === 2) {
@@ -263,9 +265,14 @@ const timeSlots = computed(() => {
                     </div>
                 </div>
 
-                <!-- Interactive map -->
+                <!-- Interactive map (renders after GPS resolves) -->
                 <div class="mb-4">
+                    <div v-if="!gpsResolved" class="w-full h-56 rounded-2xl bg-gray-100 flex flex-col items-center justify-center">
+                        <div class="w-8 h-8 rounded-full border-4 border-gray-200 border-t-[#FF5722] animate-spin mb-2"></div>
+                        <p class="text-xs text-gray-500">Obteniendo tu ubicación...</p>
+                    </div>
                     <MapPicker
+                        v-else
                         :lat="latitude"
                         :lng="longitude"
                         @update:lat="val => latitude = val"
