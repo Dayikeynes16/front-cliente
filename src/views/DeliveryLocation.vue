@@ -28,27 +28,6 @@ const activeTypes = computed(() => {
 
 const selectedType = ref(null)
 
-// Set default type once restaurant data is available (may load async)
-watch(activeTypes, (types) => {
-    if (types.length && !selectedType.value) {
-        selectedType.value = types[0]
-        if (types[0] === 'delivery') {
-            requestGps()
-        }
-    }
-}, { immediate: true })
-
-onMounted(() => {
-    // Pre-fill from cookie
-    const cookie = getCustomerCookie()
-    if (cookie) {
-        addressStreet.value = cookie.address_street ?? ''
-        addressNumber.value = cookie.address_number ?? ''
-        addressColony.value = cookie.address_colony ?? ''
-        addressReferences.value = cookie.address_references ?? ''
-    }
-})
-
 // Delivery fields
 const addressStreet = ref('')
 const addressNumber = ref('')
@@ -66,7 +45,7 @@ const deliveryError = ref(null)
 const locating = ref(false)
 const gpsError = ref(null)
 const gpsResolved = ref(false)
-async function requestGps() {
+function requestGps() {
     if (!navigator.geolocation) {
         gpsError.value = 'Tu navegador no soporta geolocalización.'
         gpsResolved.value = true
@@ -96,6 +75,27 @@ async function requestGps() {
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
     )
 }
+
+// Set default type once restaurant data is available (may load async)
+watch(activeTypes, (types) => {
+    if (types.length && !selectedType.value) {
+        selectedType.value = types[0]
+        if (types[0] === 'delivery') {
+            requestGps()
+        }
+    }
+}, { immediate: true })
+
+onMounted(() => {
+    // Pre-fill from cookie
+    const cookie = getCustomerCookie()
+    if (cookie) {
+        addressStreet.value = cookie.address_street ?? ''
+        addressNumber.value = cookie.address_number ?? ''
+        addressColony.value = cookie.address_colony ?? ''
+        addressReferences.value = cookie.address_references ?? ''
+    }
+})
 
 async function proceed() {
     if (selectedType.value === 'delivery') {
