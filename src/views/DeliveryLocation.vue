@@ -33,16 +33,23 @@ onMounted(() => {
 
     // Pre-fill from cookie
     const cookie = getCustomerCookie()
-    if (cookie) {
-        address.value = cookie.address ?? ''
+    if (cookie && (cookie.address_street || cookie.latitude)) {
+        addressStreet.value = cookie.address_street ?? ''
+        addressNumber.value = cookie.address_number ?? ''
+        addressColony.value = cookie.address_colony ?? ''
         addressReferences.value = cookie.address_references ?? ''
         latitude.value = cookie.latitude ?? null
         longitude.value = cookie.longitude ?? null
+    } else {
+        // No saved location — auto-request GPS
+        requestGps()
     }
 })
 
 // Delivery fields
-const address = ref('')
+const addressStreet = ref('')
+const addressNumber = ref('')
+const addressColony = ref('')
 const addressReferences = ref('')
 const latitude = ref(null)
 const longitude = ref(null)
@@ -85,7 +92,7 @@ async function requestGps() {
 
 async function proceed() {
     if (selectedType.value === 'delivery') {
-        if (!address.value || !latitude.value || !longitude.value) { return }
+        if (!addressStreet.value || !addressNumber.value || !addressColony.value || !latitude.value || !longitude.value) { return }
 
         proceeding.value = true
         deliveryError.value = null
@@ -106,7 +113,9 @@ async function proceed() {
             order.setDelivery('delivery', result, {
                 distance_km: result.distance_km,
                 delivery_cost: result.delivery_cost,
-                address: address.value,
+                address_street: addressStreet.value,
+                address_number: addressNumber.value,
+                address_colony: addressColony.value,
                 address_references: addressReferences.value,
                 latitude: latitude.value,
                 longitude: longitude.value,
@@ -262,11 +271,29 @@ const timeSlots = computed(() => {
                 <!-- Address fields -->
                 <div class="space-y-3 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Calle y numero</label>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Calle</label>
                         <input
-                            v-model="address"
+                            v-model="addressStreet"
                             type="text"
-                            placeholder="Av. Alvaro Obregon 154"
+                            placeholder="Av. Alvaro Obregon"
+                            class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Numero exterior</label>
+                        <input
+                            v-model="addressNumber"
+                            type="text"
+                            placeholder="154"
+                            class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Colonia</label>
+                        <input
+                            v-model="addressColony"
+                            type="text"
+                            placeholder="Roma Norte"
                             class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
                         />
                     </div>
@@ -366,7 +393,7 @@ const timeSlots = computed(() => {
         <div class="fixed bottom-5 left-4 right-4 max-w-md mx-auto">
             <button
                 @click="proceed"
-                :disabled="proceeding || (selectedType === 'delivery' && (!address || !latitude)) || ((selectedType === 'pickup' || selectedType === 'dine_in') && !selectedBranch)"
+                :disabled="proceeding || (selectedType === 'delivery' && (!addressStreet || !addressNumber || !addressColony || !latitude)) || ((selectedType === 'pickup' || selectedType === 'dine_in') && !selectedBranch)"
                 class="w-full bg-[#FF5722] text-white rounded-2xl py-4 font-bold text-base shadow-lg shadow-orange-500/30 active:scale-[0.98] transition-transform disabled:opacity-40"
             >
                 {{ proceeding ? 'Verificando cobertura...' : 'Continuar al pago' }}

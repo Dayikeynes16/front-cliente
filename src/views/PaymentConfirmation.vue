@@ -51,8 +51,9 @@ function buildWhatsappMessage(orderId) {
 
     let deliveryLines = ''
     if (order.deliveryType === 'delivery') {
+        const fullAddress = `${order.addressStreet} #${order.addressNumber}, Col. ${order.addressColony}`
         deliveryLines = `🚗 *Tipo:* A domicilio\n`
-            + `📍 *Dirección:* ${order.address}${order.addressReferences ? ' — ' + order.addressReferences : ''}\n`
+            + `📍 *Dirección:* ${fullAddress}${order.addressReferences ? ' — ' + order.addressReferences : ''}\n`
             + `🏪 *Sucursal:* ${order.branchName}\n`
             + (order.distanceKm ? `📏 Distancia: ${order.distanceKm.toFixed(1)} km\n` : '')
             + (order.latitude && order.longitude ? `📌 Ubicación: ${mapsUrl(order.latitude, order.longitude)}\n` : '')
@@ -107,7 +108,9 @@ async function confirm() {
             branch_id: order.branchId,
             delivery_type: order.deliveryType,
             payment_method: selectedPaymentMethod.value,
-            address: order.address || null,
+            address_street: order.addressStreet || null,
+            address_number: order.addressNumber || null,
+            address_colony: order.addressColony || null,
             address_references: order.addressReferences || null,
             latitude: order.latitude || null,
             longitude: order.longitude || null,
@@ -135,7 +138,9 @@ async function confirm() {
             token: cookie.token,
             name: customerName.value,
             phone: customerPhone.value,
-            address: order.address,
+            address_street: order.addressStreet,
+            address_number: order.addressNumber,
+            address_colony: order.addressColony,
             address_references: order.addressReferences,
             latitude: order.latitude,
             longitude: order.longitude,
@@ -242,7 +247,7 @@ const selectedPmDetails = computed(() =>
 
                         <!-- Delivery: customer address -->
                         <template v-if="order.deliveryType === 'delivery'">
-                            <p v-if="order.address" class="text-xs text-gray-500 mt-0.5">{{ order.address }}</p>
+                            <p v-if="order.addressStreet" class="text-xs text-gray-500 mt-0.5">{{ order.addressStreet }} #{{ order.addressNumber }}, Col. {{ order.addressColony }}</p>
                             <p v-if="order.distanceKm" class="text-xs text-gray-500 mt-0.5">{{ order.distanceKm?.toFixed(1) }} km · ${{ order.deliveryCost.toFixed(2) }} envio</p>
                         </template>
 

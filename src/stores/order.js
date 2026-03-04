@@ -22,7 +22,9 @@ export const useOrderStore = defineStore('order', () => {
     const branchLongitude = ref(saved.branchLongitude ?? null)
     const distanceKm = ref(saved.distanceKm ?? null)
     const deliveryCost = ref(saved.deliveryCost ?? 0)
-    const address = ref(saved.address ?? '')
+    const addressStreet = ref(saved.addressStreet ?? '')
+    const addressNumber = ref(saved.addressNumber ?? '')
+    const addressColony = ref(saved.addressColony ?? '')
     const addressReferences = ref(saved.addressReferences ?? '')
     const latitude = ref(saved.latitude ?? null)
     const longitude = ref(saved.longitude ?? null)
@@ -36,7 +38,7 @@ export const useOrderStore = defineStore('order', () => {
     watch([
         deliveryType, branchId, branchName, branchWhatsapp, branchAddress,
         branchLatitude, branchLongitude, distanceKm, deliveryCost,
-        address, addressReferences, latitude, longitude,
+        addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
         scheduledAt, paymentMethod, customerName, customerPhone,
         confirmedOrderId, orderSummary,
     ], () => {
@@ -50,7 +52,9 @@ export const useOrderStore = defineStore('order', () => {
             branchLongitude: branchLongitude.value,
             distanceKm: distanceKm.value,
             deliveryCost: deliveryCost.value,
-            address: address.value,
+            addressStreet: addressStreet.value,
+            addressNumber: addressNumber.value,
+            addressColony: addressColony.value,
             addressReferences: addressReferences.value,
             latitude: latitude.value,
             longitude: longitude.value,
@@ -73,7 +77,9 @@ export const useOrderStore = defineStore('order', () => {
         branchLongitude.value = branch.longitude ?? null
         distanceKm.value = deliveryData.distance_km ?? null
         deliveryCost.value = deliveryData.delivery_cost ?? 0
-        address.value = deliveryData.address ?? ''
+        addressStreet.value = deliveryData.address_street ?? ''
+        addressNumber.value = deliveryData.address_number ?? ''
+        addressColony.value = deliveryData.address_colony ?? ''
         addressReferences.value = deliveryData.address_references ?? ''
         latitude.value = deliveryData.latitude ?? null
         longitude.value = deliveryData.longitude ?? null
@@ -98,7 +104,9 @@ export const useOrderStore = defineStore('order', () => {
         branchLongitude.value = null
         distanceKm.value = null
         deliveryCost.value = 0
-        address.value = ''
+        addressStreet.value = ''
+        addressNumber.value = ''
+        addressColony.value = ''
         addressReferences.value = ''
         latitude.value = null
         longitude.value = null
@@ -112,7 +120,7 @@ export const useOrderStore = defineStore('order', () => {
     return {
         deliveryType, branchId, branchName, branchWhatsapp,
         branchAddress, branchLatitude, branchLongitude, distanceKm,
-        deliveryCost, address, addressReferences, latitude, longitude,
+        deliveryCost, addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
         scheduledAt, paymentMethod, customerName, customerPhone, confirmedOrderId,
         orderSummary,
         setDelivery, setOrderSummary, reset,

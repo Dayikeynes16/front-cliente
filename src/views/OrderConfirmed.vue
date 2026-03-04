@@ -32,8 +32,9 @@ function resendWhatsapp() {
 
     let deliveryLines = ''
     if (order.deliveryType === 'delivery') {
+        const fullAddress = `${order.addressStreet} #${order.addressNumber}, Col. ${order.addressColony}`
         deliveryLines = `🚗 *Tipo:* A domicilio\n`
-            + `📍 *Dirección:* ${order.address}${order.addressReferences ? ' — ' + order.addressReferences : ''}\n`
+            + `📍 *Dirección:* ${fullAddress}${order.addressReferences ? ' — ' + order.addressReferences : ''}\n`
             + `🏪 *Sucursal:* ${order.branchName}\n`
             + (order.distanceKm ? `📏 Distancia: ${order.distanceKm.toFixed(1)} km\n` : '')
             + (order.latitude && order.longitude ? `📌 Ubicación: ${mapsUrl(order.latitude, order.longitude)}\n` : '')
