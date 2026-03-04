@@ -71,12 +71,18 @@ function buildWhatsappMessage(orderId) {
 
     const paymentLine = { cash: 'Efectivo', terminal: 'Terminal bancaria', transfer: 'Transferencia (SPEI)' }[selectedPaymentMethod.value] ?? selectedPaymentMethod.value
 
-    let cashLine = ''
+    let paymentExtra = ''
     if (selectedPaymentMethod.value === 'cash' && cashAmount.value) {
         const amt = parseFloat(cashAmount.value)
-        cashLine = `\n💵 *Paga con:* $${amt.toFixed(2)}`
+        paymentExtra = `\n💵 *Paga con:* $${amt.toFixed(2)}`
         const change = amt - total.value
-        if (change > 0) { cashLine += `\n🔄 *Cambio:* $${change.toFixed(2)}` }
+        if (change > 0) { paymentExtra += `\n🔄 *Cambio:* $${change.toFixed(2)}` }
+    }
+    if (selectedPaymentMethod.value === 'transfer' && selectedPmDetails.value) {
+        const pm = selectedPmDetails.value
+        paymentExtra = `\n🏦 *Banco:* ${pm.bank_name}`
+            + `\n👤 *Titular:* ${pm.account_holder}`
+            + `\n📋 *CLABE:* ${pm.clabe}`
     }
 
     return encodeURIComponent(
@@ -85,7 +91,7 @@ function buildWhatsappMessage(orderId) {
         `🛒 *Pedido:*\n${itemLines}\n\n` +
         `${deliveryLines}` +
         `${scheduledLine}\n` +
-        `💳 *Pago:* ${paymentLine}${cashLine}\n\n` +
+        `💳 *Pago:* ${paymentLine}${paymentExtra}\n\n` +
         `*Subtotal:* $${cart.subtotal.toFixed(2)}\n` +
         `*Envío:* $${order.deliveryCost.toFixed(2)}\n` +
         `*Total: $${total.value.toFixed(2)}*`,
@@ -161,6 +167,9 @@ async function confirm() {
         order.customerPhone = customerPhone.value
         order.paymentMethod = selectedPaymentMethod.value
         order.cashAmount = selectedPaymentMethod.value === 'cash' && cashAmount.value ? parseFloat(cashAmount.value) : null
+        order.transferDetails = selectedPaymentMethod.value === 'transfer' && selectedPmDetails.value
+            ? { bank_name: selectedPmDetails.value.bank_name, account_holder: selectedPmDetails.value.account_holder, clabe: selectedPmDetails.value.clabe }
+            : null
 
         // Open WhatsApp — use pre-opened window to avoid popup blocker
         const message = buildWhatsappMessage(orderId)

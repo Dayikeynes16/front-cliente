@@ -31,6 +31,7 @@ export const useOrderStore = defineStore('order', () => {
     const scheduledAt = ref(saved.scheduledAt ?? null)
     const paymentMethod = ref(saved.paymentMethod ?? null)
     const cashAmount = ref(saved.cashAmount ?? null)
+    const transferDetails = ref(saved.transferDetails ?? null)
     const customerName = ref(saved.customerName ?? '')
     const customerPhone = ref(saved.customerPhone ?? '')
     const confirmedOrderId = ref(saved.confirmedOrderId ?? null)
@@ -41,7 +42,7 @@ export const useOrderStore = defineStore('order', () => {
         branchLatitude, branchLongitude, distanceKm, deliveryCost,
         addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
         scheduledAt, paymentMethod, customerName, customerPhone,
-        cashAmount, confirmedOrderId, orderSummary,
+        cashAmount, transferDetails, confirmedOrderId, orderSummary,
     ], () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             deliveryType: deliveryType.value,
@@ -62,6 +63,7 @@ export const useOrderStore = defineStore('order', () => {
             scheduledAt: scheduledAt.value,
             paymentMethod: paymentMethod.value,
             cashAmount: cashAmount.value,
+            transferDetails: transferDetails.value,
             customerName: customerName.value,
             customerPhone: customerPhone.value,
             confirmedOrderId: confirmedOrderId.value,
@@ -115,6 +117,7 @@ export const useOrderStore = defineStore('order', () => {
         scheduledAt.value = null
         paymentMethod.value = null
         cashAmount.value = null
+        transferDetails.value = null
         confirmedOrderId.value = null
         orderSummary.value = null
         localStorage.removeItem(STORAGE_KEY)
@@ -124,7 +127,7 @@ export const useOrderStore = defineStore('order', () => {
         deliveryType, branchId, branchName, branchWhatsapp,
         branchAddress, branchLatitude, branchLongitude, distanceKm,
         deliveryCost, addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
-        scheduledAt, paymentMethod, cashAmount, customerName, customerPhone, confirmedOrderId,
+        scheduledAt, paymentMethod, cashAmount, transferDetails, customerName, customerPhone, confirmedOrderId,
         orderSummary,
         setDelivery, setOrderSummary, reset,
     }
