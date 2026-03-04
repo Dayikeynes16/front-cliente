@@ -15,7 +15,8 @@ export function setCustomerCookie(data) {
     const expires = new Date()
     expires.setDate(expires.getDate() + EXPIRY_DAYS)
     const value = encodeURIComponent(JSON.stringify(data))
-    document.cookie = `${COOKIE_NAME}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`
+    const secure = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `${COOKIE_NAME}=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax${secure}`
 }
 
 export function generateCustomerToken() {
