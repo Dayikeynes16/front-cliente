@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRestaurantStore } from '@/stores/restaurant'
 import { useCartStore } from '@/stores/cart'
@@ -28,10 +28,20 @@ const activeTypes = computed(() => {
 
 const selectedType = ref(null)
 
-onMounted(() => {
-    const firstType = activeTypes.value[0]
-    selectedType.value = firstType ?? 'pickup'
+// Set default type once restaurant data is available (may load async)
+watch(activeTypes, (types) => {
+    if (types.length && !selectedType.value) {
+        selectedType.value = types[0]
+        if (types[0] === 'delivery') {
+            const cookie = getCustomerCookie()
+            if (!cookie?.address_street && !cookie?.latitude) {
+                requestGps()
+            }
+        }
+    }
+}, { immediate: true })
 
+onMounted(() => {
     // Pre-fill from cookie
     const cookie = getCustomerCookie()
     if (cookie && (cookie.address_street || cookie.latitude)) {
@@ -41,9 +51,6 @@ onMounted(() => {
         addressReferences.value = cookie.address_references ?? ''
         latitude.value = cookie.latitude ?? null
         longitude.value = cookie.longitude ?? null
-    } else if (firstType === 'delivery') {
-        // No saved location — auto-request GPS only if delivery is available
-        requestGps()
     }
 })
 
