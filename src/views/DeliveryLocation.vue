@@ -283,6 +283,7 @@ const timeSlots = computed(() => {
                         <input
                             v-model="addressStreet"
                             type="text"
+                            maxlength="255"
                             placeholder="Av. Alvaro Obregon"
                             class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
                         />
@@ -292,6 +293,7 @@ const timeSlots = computed(() => {
                         <input
                             v-model="addressNumber"
                             type="text"
+                            maxlength="50"
                             placeholder="154"
                             class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
                         />
@@ -301,6 +303,7 @@ const timeSlots = computed(() => {
                         <input
                             v-model="addressColony"
                             type="text"
+                            maxlength="255"
                             placeholder="Roma Norte"
                             class="w-full bg-white border border-gray-100 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
                         />
@@ -401,7 +404,7 @@ const timeSlots = computed(() => {
         <div class="fixed bottom-5 left-4 right-4 max-w-md mx-auto">
             <button
                 @click="proceed"
-                :disabled="proceeding || (selectedType === 'delivery' && (!addressStreet || !addressNumber || !addressColony || !latitude)) || ((selectedType === 'pickup' || selectedType === 'dine_in') && !selectedBranch)"
+                :disabled="proceeding || (selectedType === 'delivery' && (!addressStreet || !addressNumber || !addressColony || !latitude || !longitude)) || ((selectedType === 'pickup' || selectedType === 'dine_in') && !selectedBranch)"
                 class="w-full bg-[#FF5722] text-white rounded-2xl py-4 font-bold text-base shadow-lg shadow-orange-500/30 active:scale-[0.98] transition-transform disabled:opacity-40"
             >
                 {{ proceeding ? 'Verificando cobertura...' : 'Continuar al pago' }}
