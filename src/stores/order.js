@@ -1,26 +1,67 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+
+const STORAGE_KEY = 'guisogo_order'
+
+function loadFromStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        return raw ? JSON.parse(raw) : {}
+    } catch { return {} }
+}
 
 export const useOrderStore = defineStore('order', () => {
-    const deliveryType = ref(null) // 'delivery' | 'pickup' | 'dine_in'
-    const branchId = ref(null)
-    const branchName = ref(null)
-    const branchWhatsapp = ref(null)
-    const branchAddress = ref('')
-    const branchLatitude = ref(null)
-    const branchLongitude = ref(null)
-    const distanceKm = ref(null)
-    const deliveryCost = ref(0)
-    const address = ref('')
-    const addressReferences = ref('')
-    const latitude = ref(null)
-    const longitude = ref(null)
-    const scheduledAt = ref(null)
-    const paymentMethod = ref(null)
-    const customerName = ref('')
-    const customerPhone = ref('')
-    const confirmedOrderId = ref(null)
-    const orderSummary = ref(null)
+    const saved = loadFromStorage()
+
+    const deliveryType = ref(saved.deliveryType ?? null)
+    const branchId = ref(saved.branchId ?? null)
+    const branchName = ref(saved.branchName ?? null)
+    const branchWhatsapp = ref(saved.branchWhatsapp ?? null)
+    const branchAddress = ref(saved.branchAddress ?? '')
+    const branchLatitude = ref(saved.branchLatitude ?? null)
+    const branchLongitude = ref(saved.branchLongitude ?? null)
+    const distanceKm = ref(saved.distanceKm ?? null)
+    const deliveryCost = ref(saved.deliveryCost ?? 0)
+    const address = ref(saved.address ?? '')
+    const addressReferences = ref(saved.addressReferences ?? '')
+    const latitude = ref(saved.latitude ?? null)
+    const longitude = ref(saved.longitude ?? null)
+    const scheduledAt = ref(saved.scheduledAt ?? null)
+    const paymentMethod = ref(saved.paymentMethod ?? null)
+    const customerName = ref(saved.customerName ?? '')
+    const customerPhone = ref(saved.customerPhone ?? '')
+    const confirmedOrderId = ref(saved.confirmedOrderId ?? null)
+    const orderSummary = ref(saved.orderSummary ?? null)
+
+    watch([
+        deliveryType, branchId, branchName, branchWhatsapp, branchAddress,
+        branchLatitude, branchLongitude, distanceKm, deliveryCost,
+        address, addressReferences, latitude, longitude,
+        scheduledAt, paymentMethod, customerName, customerPhone,
+        confirmedOrderId, orderSummary,
+    ], () => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            deliveryType: deliveryType.value,
+            branchId: branchId.value,
+            branchName: branchName.value,
+            branchWhatsapp: branchWhatsapp.value,
+            branchAddress: branchAddress.value,
+            branchLatitude: branchLatitude.value,
+            branchLongitude: branchLongitude.value,
+            distanceKm: distanceKm.value,
+            deliveryCost: deliveryCost.value,
+            address: address.value,
+            addressReferences: addressReferences.value,
+            latitude: latitude.value,
+            longitude: longitude.value,
+            scheduledAt: scheduledAt.value,
+            paymentMethod: paymentMethod.value,
+            customerName: customerName.value,
+            customerPhone: customerPhone.value,
+            confirmedOrderId: confirmedOrderId.value,
+            orderSummary: orderSummary.value,
+        }))
+    }, { deep: true })
 
     function setDelivery(type, branch, deliveryData = {}) {
         deliveryType.value = type
@@ -65,6 +106,7 @@ export const useOrderStore = defineStore('order', () => {
         paymentMethod.value = null
         confirmedOrderId.value = null
         orderSummary.value = null
+        localStorage.removeItem(STORAGE_KEY)
     }
 
     return {

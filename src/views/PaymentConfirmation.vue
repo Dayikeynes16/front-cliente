@@ -88,6 +88,9 @@ async function confirm() {
     submitting.value = true
     submitError.value = null
 
+    // Open blank window immediately in user-click stack to avoid popup blocker
+    const whatsappWin = window.open('', '_blank')
+
     try {
         // Get or create customer token
         let cookie = getCustomerCookie()
@@ -142,14 +145,21 @@ async function confirm() {
         order.customerName = customerName.value
         order.customerPhone = customerPhone.value
 
-        // Open WhatsApp
+        // Open WhatsApp — use pre-opened window to avoid popup blocker
         const message = buildWhatsappMessage(orderId)
-        window.open(`https://wa.me/${whatsapp}?text=${message}`, '_blank')
+        if (whatsappWin) {
+            whatsappWin.location.href = `https://wa.me/${whatsapp}?text=${message}`
+        } else {
+            // Popups blocked — redirect current tab as fallback
+            window.location.href = `https://wa.me/${whatsapp}?text=${message}`
+        }
 
         order.setOrderSummary(cart.items, cart.subtotal, order.deliveryCost)
         cart.clear()
         router.push('/confirmed')
     } catch (err) {
+        // Close the pre-opened blank window on error
+        if (whatsappWin) { whatsappWin.close() }
         submitError.value = err.response?.data?.message ?? 'Error al registrar el pedido. Intenta de nuevo.'
     } finally {
         submitting.value = false

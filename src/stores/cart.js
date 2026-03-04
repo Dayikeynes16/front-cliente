@@ -1,8 +1,21 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+
+const STORAGE_KEY = 'guisogo_cart'
+
+function loadFromStorage() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        return raw ? JSON.parse(raw) : []
+    } catch { return [] }
+}
 
 export const useCartStore = defineStore('cart', () => {
-    const items = ref([])
+    const items = ref(loadFromStorage())
+
+    watch(items, (val) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(val))
+    }, { deep: true })
 
     const subtotal = computed(() =>
         items.value.reduce((sum, item) => sum + item.item_total, 0),
@@ -60,6 +73,7 @@ export const useCartStore = defineStore('cart', () => {
 
     function clear() {
         items.value = []
+        localStorage.removeItem(STORAGE_KEY)
     }
 
     return { items, subtotal, totalItems, addItem, updateQuantity, removeItem, clear }

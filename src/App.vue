@@ -8,6 +8,11 @@ const restaurantStore = useRestaurantStore()
 onMounted(async () => {
     await restaurantStore.fetchRestaurant()
     await restaurantStore.fetchMenu()
+
+    // Request geolocation permission early so the browser prompt appears before checkout
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 5000 })
+    }
 })
 </script>
 

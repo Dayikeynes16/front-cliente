@@ -28,7 +28,6 @@ const mapLoaded = ref(false)
 const mapError = ref(null)
 
 let googleMap = null
-let marker = null
 
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY
 
@@ -82,24 +81,11 @@ async function initMap() {
             styles: [{ featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }],
         })
 
-        marker = new window.google.maps.Marker({
-            position: center,
-            map: googleMap,
-            draggable: true,
-            icon: {
-                path: window.google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#FF5722',
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 2,
-            },
-            title: 'Arrastra para ajustar tu ubicación',
-        })
-
-        marker.addListener('dragend', (event) => {
-            emit('update:lat', event.latLng.lat())
-            emit('update:lng', event.latLng.lng())
+        // Emit center coordinates when map stops moving
+        googleMap.addListener('idle', () => {
+            const center = googleMap.getCenter()
+            emit('update:lat', center.lat())
+            emit('update:lng', center.lng())
         })
 
         mapLoaded.value = true
@@ -110,16 +96,13 @@ async function initMap() {
 
 // Re-center map when props change (e.g. GPS obtained)
 watch(() => [props.lat, props.lng], ([newLat, newLng]) => {
-    if (!googleMap || !marker || !newLat || !newLng) { return }
-    const pos = { lat: newLat, lng: newLng }
-    googleMap.setCenter(pos)
-    marker.setPosition(pos)
+    if (!googleMap || !newLat || !newLng) { return }
+    googleMap.setCenter({ lat: newLat, lng: newLng })
 })
 
 onMounted(() => { initMap() })
 
 onUnmounted(() => {
-    marker = null
     googleMap = null
 })
 </script>
@@ -152,10 +135,15 @@ onUnmounted(() => {
             </div>
         </div>
 
+        <!-- Fixed center pin (CSS overlay, not a Google marker) -->
+        <div v-if="mapLoaded" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-full pointer-events-none z-10">
+            <span class="material-symbols-outlined text-[#FF5722] text-4xl drop-shadow-lg" style="font-variation-settings:'FILL' 1">location_on</span>
+        </div>
+
         <!-- Pin hint overlay (shown when loaded) -->
         <div v-if="mapLoaded" class="absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none">
             <div class="bg-black/50 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-                Arrastra el pin para ajustar tu ubicación
+                Mueve el mapa para ajustar tu ubicación
             </div>
         </div>
     </div>
