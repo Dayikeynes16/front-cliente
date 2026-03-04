@@ -30,6 +30,7 @@ export const useOrderStore = defineStore('order', () => {
     const longitude = ref(saved.longitude ?? null)
     const scheduledAt = ref(saved.scheduledAt ?? null)
     const paymentMethod = ref(saved.paymentMethod ?? null)
+    const cashAmount = ref(saved.cashAmount ?? null)
     const customerName = ref(saved.customerName ?? '')
     const customerPhone = ref(saved.customerPhone ?? '')
     const confirmedOrderId = ref(saved.confirmedOrderId ?? null)
@@ -40,7 +41,7 @@ export const useOrderStore = defineStore('order', () => {
         branchLatitude, branchLongitude, distanceKm, deliveryCost,
         addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
         scheduledAt, paymentMethod, customerName, customerPhone,
-        confirmedOrderId, orderSummary,
+        cashAmount, confirmedOrderId, orderSummary,
     ], () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
             deliveryType: deliveryType.value,
@@ -60,6 +61,7 @@ export const useOrderStore = defineStore('order', () => {
             longitude: longitude.value,
             scheduledAt: scheduledAt.value,
             paymentMethod: paymentMethod.value,
+            cashAmount: cashAmount.value,
             customerName: customerName.value,
             customerPhone: customerPhone.value,
             confirmedOrderId: confirmedOrderId.value,
@@ -112,6 +114,7 @@ export const useOrderStore = defineStore('order', () => {
         longitude.value = null
         scheduledAt.value = null
         paymentMethod.value = null
+        cashAmount.value = null
         confirmedOrderId.value = null
         orderSummary.value = null
         localStorage.removeItem(STORAGE_KEY)
@@ -121,7 +124,7 @@ export const useOrderStore = defineStore('order', () => {
         deliveryType, branchId, branchName, branchWhatsapp,
         branchAddress, branchLatitude, branchLongitude, distanceKm,
         deliveryCost, addressStreet, addressNumber, addressColony, addressReferences, latitude, longitude,
-        scheduledAt, paymentMethod, customerName, customerPhone, confirmedOrderId,
+        scheduledAt, paymentMethod, cashAmount, customerName, customerPhone, confirmedOrderId,
         orderSummary,
         setDelivery, setOrderSummary, reset,
     }

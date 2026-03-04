@@ -33,10 +33,7 @@ watch(activeTypes, (types) => {
     if (types.length && !selectedType.value) {
         selectedType.value = types[0]
         if (types[0] === 'delivery') {
-            const cookie = getCustomerCookie()
-            if (!cookie?.address_street && !cookie?.latitude) {
-                requestGps()
-            }
+            requestGps()
         }
     }
 }, { immediate: true })

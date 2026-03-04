@@ -51,13 +51,20 @@ function resendWhatsapp() {
 
     const paymentLine = paymentLabels[order.paymentMethod] ?? order.paymentMethod
 
+    let cashLine = ''
+    if (order.paymentMethod === 'cash' && order.cashAmount) {
+        cashLine = `\n💵 *Paga con:* $${parseFloat(order.cashAmount).toFixed(2)}`
+        const change = parseFloat(order.cashAmount) - summary.total
+        if (change > 0) { cashLine += `\n🔄 *Cambio:* $${change.toFixed(2)}` }
+    }
+
     const message = encodeURIComponent(
         `*Pedido #${order.confirmedOrderId} — GuisoGo*\n\n` +
         `👤 *Cliente:* ${order.customerName} | ${order.customerPhone}\n\n` +
         `🛒 *Pedido:*\n${itemLines}\n\n` +
         `${deliveryLines}` +
         `${scheduledLine}\n` +
-        `💳 *Pago:* ${paymentLine}\n\n` +
+        `💳 *Pago:* ${paymentLine}${cashLine}\n\n` +
         `*Subtotal:* $${summary.subtotal.toFixed(2)}\n` +
         `*Envío:* $${summary.deliveryCost.toFixed(2)}\n` +
         `*Total: $${summary.total.toFixed(2)}*`,

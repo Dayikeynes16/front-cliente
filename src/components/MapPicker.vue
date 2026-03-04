@@ -65,14 +65,15 @@ async function initMap() {
     try {
         await loadGoogleMapsScript()
 
+        const hasCoords = props.lat != null && props.lng != null
         const center = {
-            lat: props.lat ?? 19.4326,
-            lng: props.lng ?? -99.1332,
+            lat: hasCoords ? props.lat : 23.6345,
+            lng: hasCoords ? props.lng : -102.5528,
         }
 
         googleMap = new window.google.maps.Map(mapEl.value, {
             center,
-            zoom: 15,
+            zoom: hasCoords ? 15 : 5,
             disableDefaultUI: true,
             zoomControl: true,
             mapTypeControl: false,
@@ -98,6 +99,7 @@ async function initMap() {
 watch(() => [props.lat, props.lng], ([newLat, newLng]) => {
     if (!googleMap || !newLat || !newLng) { return }
     googleMap.setCenter({ lat: newLat, lng: newLng })
+    if (googleMap.getZoom() < 13) { googleMap.setZoom(15) }
 })
 
 onMounted(() => { initMap() })

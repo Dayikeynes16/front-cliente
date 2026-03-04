@@ -19,6 +19,7 @@ const customerName = ref(order.customerName)
 const customerPhone = ref(order.customerPhone)
 const selectedPaymentMethod = ref(null)
 
+const cashAmount = ref(null)
 const submitting = ref(false)
 const submitError = ref(null)
 
@@ -70,13 +71,21 @@ function buildWhatsappMessage(orderId) {
 
     const paymentLine = { cash: 'Efectivo', terminal: 'Terminal bancaria', transfer: 'Transferencia (SPEI)' }[selectedPaymentMethod.value] ?? selectedPaymentMethod.value
 
+    let cashLine = ''
+    if (selectedPaymentMethod.value === 'cash' && cashAmount.value) {
+        const amt = parseFloat(cashAmount.value)
+        cashLine = `\n💵 *Paga con:* $${amt.toFixed(2)}`
+        const change = amt - total.value
+        if (change > 0) { cashLine += `\n🔄 *Cambio:* $${change.toFixed(2)}` }
+    }
+
     return encodeURIComponent(
         `*Pedido #${orderId} — GuisoGo*\n\n` +
         `👤 *Cliente:* ${customerName.value} | ${customerPhone.value}\n\n` +
         `🛒 *Pedido:*\n${itemLines}\n\n` +
         `${deliveryLines}` +
         `${scheduledLine}\n` +
-        `💳 *Pago:* ${paymentLine}\n\n` +
+        `💳 *Pago:* ${paymentLine}${cashLine}\n\n` +
         `*Subtotal:* $${cart.subtotal.toFixed(2)}\n` +
         `*Envío:* $${order.deliveryCost.toFixed(2)}\n` +
         `*Total: $${total.value.toFixed(2)}*`,
@@ -108,6 +117,7 @@ async function confirm() {
             branch_id: order.branchId,
             delivery_type: order.deliveryType,
             payment_method: selectedPaymentMethod.value,
+            cash_amount: selectedPaymentMethod.value === 'cash' && cashAmount.value ? parseFloat(cashAmount.value) : null,
             address_street: order.addressStreet || null,
             address_number: order.addressNumber || null,
             address_colony: order.addressColony || null,
@@ -150,6 +160,7 @@ async function confirm() {
         order.customerName = customerName.value
         order.customerPhone = customerPhone.value
         order.paymentMethod = selectedPaymentMethod.value
+        order.cashAmount = selectedPaymentMethod.value === 'cash' && cashAmount.value ? parseFloat(cashAmount.value) : null
 
         // Open WhatsApp — use pre-opened window to avoid popup blocker
         const message = buildWhatsappMessage(orderId)
@@ -294,6 +305,26 @@ const selectedPmDetails = computed(() =>
                             </p>
                         </div>
                     </button>
+                </div>
+
+                <!-- Cash: "pays with" input -->
+                <div v-if="selectedPaymentMethod === 'cash'" class="mt-4 bg-gray-50 rounded-2xl p-4">
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Con cuánto pagas?</label>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500 font-semibold">$</span>
+                        <input
+                            v-model="cashAmount"
+                            type="number"
+                            inputmode="decimal"
+                            min="0"
+                            step="any"
+                            placeholder="Ej: 500"
+                            class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5722]/30"
+                        />
+                    </div>
+                    <p v-if="cashAmount && cashAmount < total" class="text-xs text-red-500 mt-1">El monto debe ser igual o mayor al total (${{ total.toFixed(2) }})</p>
+                    <p v-else-if="cashAmount && cashAmount >= total" class="text-xs text-gray-400 mt-1">Cambio: ${{ (cashAmount - total).toFixed(2) }}</p>
+                    <p class="text-xs text-gray-400 mt-1" v-if="!cashAmount">Opcional — para que el repartidor lleve cambio exacto.</p>
                 </div>
 
                 <!-- Transfer bank details -->
